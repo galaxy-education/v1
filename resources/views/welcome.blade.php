@@ -1132,7 +1132,7 @@
             font-size: 16px;
         }
     </style>
-    <script>
+      <script>
         document.addEventListener("DOMContentLoaded", () => {
             const fillableFields = [
                 'hh', 'ph', 'b1h', 'b2h', 'hf', 'h1f', 'p1f', 'h2f', 'p2f',
@@ -1141,7 +1141,6 @@
                 'p8c', 'hr'
             ];
 
-            // إضافة زر تعديل بجانب كل عنصر
             fillableFields.forEach(field => {
                 document.querySelectorAll(`[data-field="${field}"]`).forEach(element => {
                     const btn = document.createElement("button");
@@ -1150,30 +1149,27 @@
                     btn.setAttribute("data-bs-target", "#editModal");
                     btn.dataset.field = field;
 
-                    // إضافة أيقونة قلم
                     const icon = document.createElement("i");
-                    icon.className = "fas fa-pen"; // Font Awesome أيقونة القلم
+                    icon.className = "fas fa-pen";
                     btn.appendChild(icon);
 
                     element.appendChild(btn);
                 });
-
             });
 
-            // فتح المودال وضبط القيم
             document.addEventListener("click", (e) => {
                 if (e.target.classList.contains("edit-btn")) {
                     const field = e.target.dataset.field;
                     const enValue = e.target.parentElement.dataset.en || "";
                     const arValue = e.target.parentElement.dataset.ar || "";
 
+                    // تحديث الحقول في المودال
                     document.getElementById("fieldName").value = field;
                     document.getElementById("fieldEn").value = enValue;
                     document.getElementById("fieldAr").value = arValue;
                 }
             });
 
-            // إرسال البيانات إلى السيرفر
             document.getElementById("editForm").addEventListener("submit", async (e) => {
                 e.preventDefault();
                 const formData = new FormData(e.target);
@@ -1188,23 +1184,25 @@
                 });
 
                 if (response.ok) {
-                    // تحديث القيم في الصفحة
-                    const field = formData.get("field");
-                    document.querySelector(`[data-field="${field}"]`).dataset.en = formData.get("en");
-                    document.querySelector(`[data-field="${field}"]`).dataset.ar = formData.get("ar");
-                    alert("تم التحديث بنجاح");
+                    const contentType = response.headers.get("Content-Type");
+                    if (contentType && contentType.includes("application/json")) {
+                        const data = await response.json();
+                        alert(data.message);
+                    } else {
+                        console.error("Expected JSON, but got:", contentType);
+                        alert("حدث خطأ في الاستجابة.");
+                    }
                 } else {
-                    alert("حدث خطأ أثناء التحديث");
+                    alert("حدث خطأ أثناء التحديث.");
                 }
 
-                // إغلاق المودال
+
+
                 const modal = bootstrap.Modal.getInstance(document.getElementById("editModal"));
                 modal.hide();
             });
         });
     </script>
-
-
 
 
 
